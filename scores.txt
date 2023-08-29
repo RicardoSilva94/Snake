@@ -1,0 +1,6 @@
+Ricardo: 0
+Ricardo: 0
+Ricardo: 0
+Ricardo: 0
+Ricardo: 12
+teste: 3
