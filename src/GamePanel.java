@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener {
@@ -24,21 +25,25 @@ public class GamePanel extends JPanel implements ActionListener {
     Random random;
 
     private String playerName;
+    private JFrame nameFrame;
+    private JFrame gameFrame;
 
     GamePanel() {
 
-        playerName = JOptionPane.showInputDialog(this, "Escreve o teu nome:", "Nome do Jogador", JOptionPane.PLAIN_MESSAGE);
+
+        playerName = JOptionPane.showInputDialog(this, "Enter your name:", "Player's name", JOptionPane.PLAIN_MESSAGE);
         random = new Random();
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
         this.setBackground(Color.black);
         this.setFocusable(true);
         this.addKeyListener(new MyKeyAdapter());
+
+
         startGame();
 
 
-
-
     }
+
 
     private void saveScoreToFile() {
         try {
@@ -56,18 +61,33 @@ public class GamePanel extends JPanel implements ActionListener {
             FileReader fileReader = new FileReader("scores.txt");
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
-            StringBuilder scores = new StringBuilder();
+            // Create a list to store the scores
+            ArrayList<String> scoresList = new ArrayList<>();
+
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                scores.append(line).append("\n");
+                scoresList.add(line);
             }
             bufferedReader.close();
 
-            JOptionPane.showMessageDialog(this, scores.toString(), "Pontuações Armazenadas", JOptionPane.INFORMATION_MESSAGE);
+            // Sort the scores in descending order
+            scoresList.sort((s1, s2) -> {
+                int score1 = Integer.parseInt(s1.split(": ")[1]);
+                int score2 = Integer.parseInt(s2.split(": ")[1]);
+                return Integer.compare(score2, score1);
+            });
+
+            StringBuilder scores = new StringBuilder();
+            for (String score : scoresList) {
+                scores.append(score).append("\n");
+            }
+
+            JOptionPane.showMessageDialog(this, scores.toString(), "Saved Scores", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
 
     public void startGame() {
@@ -196,7 +216,15 @@ public class GamePanel extends JPanel implements ActionListener {
         g.setFont(new Font ("INK FREE", Font.BOLD,75));
         FontMetrics metrics2 = getFontMetrics(g.getFont());
         g.drawString("Game Over", (SCREEN_WIDTH - metrics2.stringWidth("GAME OVER"))/2, SCREEN_HEIGHT/2);
+        // Additional text
+        g.setColor(Color.red);
+        g.setFont(new Font("INK FREE", Font.BOLD, 20));
+        FontMetrics metrics3 = getFontMetrics(g.getFont());
+        String pressPText = "Press P to get the scores";
+        g.drawString(pressPText, (SCREEN_WIDTH - metrics3.stringWidth(pressPText)) / 2, SCREEN_HEIGHT - 20);
+
         saveScoreToFile();
+
 
     }
 
