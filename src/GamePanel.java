@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener {
@@ -22,7 +23,11 @@ public class GamePanel extends JPanel implements ActionListener {
     Timer timer;
     Random random;
 
+    private String playerName;
+
     GamePanel() {
+
+        playerName = JOptionPane.showInputDialog(this, "Escreve o teu nome:", "Nome do Jogador", JOptionPane.PLAIN_MESSAGE);
         random = new Random();
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
         this.setBackground(Color.black);
@@ -30,7 +35,40 @@ public class GamePanel extends JPanel implements ActionListener {
         this.addKeyListener(new MyKeyAdapter());
         startGame();
 
+
+
+
     }
+
+    private void saveScoreToFile() {
+        try {
+            FileWriter fileWriter = new FileWriter("scores.txt", true);
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+            bufferedWriter.write(playerName + ": " + applesEaten);
+            bufferedWriter.newLine();
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void showScores() {
+        try {
+            FileReader fileReader = new FileReader("scores.txt");
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            StringBuilder scores = new StringBuilder();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                scores.append(line).append("\n");
+            }
+            bufferedReader.close();
+
+            JOptionPane.showMessageDialog(this, scores.toString(), "Pontuações Armazenadas", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void startGame() {
         newApple();
@@ -158,6 +196,7 @@ public class GamePanel extends JPanel implements ActionListener {
         g.setFont(new Font ("INK FREE", Font.BOLD,75));
         FontMetrics metrics2 = getFontMetrics(g.getFont());
         g.drawString("Game Over", (SCREEN_WIDTH - metrics2.stringWidth("GAME OVER"))/2, SCREEN_HEIGHT/2);
+        saveScoreToFile();
 
     }
 
@@ -197,6 +236,10 @@ public class GamePanel extends JPanel implements ActionListener {
                         direction = 'D';
                     }
                     break;
+
+                }
+            if (e.getKeyCode() == KeyEvent.VK_P) {
+                showScores();
             }
         }
 
